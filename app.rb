@@ -5,7 +5,19 @@ require './lib/all'
 
 class App < Sinatra::Base
   def current_user
-    User.first
+    auth_header = request.env["HTTP_AUTHORIZATION"]
+    if auth_header
+      user_id, given_password = auth_header.split(":", 2)
+
+      user = User.find user_id
+      if user.password == given_password
+        return user
+      else
+        halt 401, "Passwords didn't match"
+      end
+    else
+      halt 401, "You must authenticate"
+    end
   end
 
   get "/teams/:id" do
@@ -31,7 +43,7 @@ class App < Sinatra::Base
 
   post "/teams/:id" do
     t = Team.find params[:id]
-    # or t.membersips.create! user: current_user
+    # or t.memberships.create! user: current_user
     current_user.memberships.create! team: t
 
     status 200
