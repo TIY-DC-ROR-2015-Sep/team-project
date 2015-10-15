@@ -4,6 +4,10 @@ require './db/setup'
 require './lib/all'
 
 class App < Sinatra::Base
+  def current_user
+    User.first
+  end
+
   get "/teams/:id" do
     team_id = params[:id]
     t = Team.find team_id
@@ -23,6 +27,14 @@ class App < Sinatra::Base
         # { name: "Fake", email: "fake@example.com" }
       #]
     }.to_json
+  end
+
+  post "/teams/:id" do
+    t = Team.find params[:id]
+    # or t.membersips.create! user: current_user
+    current_user.memberships.create! team: t
+
+    status 200
   end
 end
 
