@@ -48,6 +48,14 @@ class App < Sinatra::Base
 
     status 200
   end
+
+  delete "/teams/:id" do
+    u = current_user
+    # u.memberships.where(team_id: ...).first.delete
+    Membership.where(user_id: u.id, team_id: params[:id]).delete_all
+
+    status 200
+  end
 end
 
 App.run!
